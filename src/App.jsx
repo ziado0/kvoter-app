@@ -1,11 +1,11 @@
 // src/App.jsx
 import React, { useState, useEffect } from 'react';
 import { db, auth, googleProvider } from './firebase';
-import { collection, onSnapshot, doc, updateDoc, increment } from 'firebase/firestore';
+import { collection, onSnapshot, doc, updateDoc, increment, addDoc, query, where, getDocs } from 'firebase/firestore';
 import { signInWithPopup, onAuthStateChanged, signOut } from "firebase/auth";
 import './App.css';
 
-// This is the component for a single band card (moved outside for clarity)
+// ... (The BandCard component remains the same as before)
 const BandCard = ({ band, onVote, user, voted, totalVotes, rank }) => {
   const percentage = totalVotes > 0 ? ((band.votes / totalVotes) * 100).toFixed(1) : 0;
   return (
@@ -15,7 +15,7 @@ const BandCard = ({ band, onVote, user, voted, totalVotes, rank }) => {
         <h2>{rank}. {band.name}</h2>
         <div className="vote-info">
           <p className="percentage">{percentage}%</p>
-          <button onClick={() => onVote(band.id)} disabled={!user || voted}>
+          <button onClick={() => onVote(band)} disabled={!user || voted}>
             Vote
           </button>
         </div>
@@ -24,16 +24,28 @@ const BandCard = ({ band, onVote, user, voted, totalVotes, rank }) => {
   );
 };
 
+
 function App() {
   const [bands, setBands] = useState([]);
   const [user, setUser] = useState(null);
-  const [voted, setVoted] = useState(false);
+  const [voted, setVoted] = useState(false); // Now checks database for this
+
+  // Check if the current user has already voted
+  useEffect(() => {
+    const checkIfVoted = async () => {
+      if (user) {
+        const votesQuery = query(collection(db, "user_votes"), where("userId", "==", user.uid));
+        const querySnapshot = await getDocs(votesQuery);
+        setVoted(!querySnapshot.empty);
+      } else {
+        setVoted(false);
+      }
+    };
+    checkIfVoted();
+  }, [user]);
 
   useEffect(() => {
-    onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      if (!currentUser) setVoted(false);
-    });
+    onAuthStateChanged(auth, (currentUser) => setUser(currentUser));
 
     const unsubscribe = onSnapshot(collection(db, 'Bands'), (snapshot) => {
       const bandsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -43,21 +55,36 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  const handleVote = async (bandId) => {
+  // NEW handleVote function
+  const handleVote = async (band) => {
     if (!user) return alert("Please sign in to vote!");
-    if (voted) return alert("You have already voted in this session!");
-    const bandRef = doc(db, 'Bands', bandId);
+    if (voted) return alert("You have already voted!");
+
+    // 1. Increment the band's vote count
+    const bandRef = doc(db, 'Bands', band.id);
     await updateDoc(bandRef, { votes: increment(1) });
-    setVoted(true);
+
+    // 2. Create a record of the user's vote
+    await addDoc(collection(db, "user_votes"), {
+      userId: user.uid,
+      userEmail: user.email,
+      displayName: user.displayName,
+      bandId: band.id,
+      bandName: band.name,
+      timestamp: new Date()
+    });
+
+    setVoted(true); // Update the UI to disable voting
     alert("Thank you for your vote!");
   };
 
   const signIn = () => signInWithPopup(auth, googleProvider).catch(console.error);
   const logOut = () => signOut(auth);
-
+  
   const totalVotes = bands.reduce((sum, band) => sum + band.votes, 0);
 
   return (
+    // ... (The JSX for the layout remains the same as before)
     <div className="app-container">
       <header>
         <h1>K-Voter 🎤</h1>
@@ -71,7 +98,6 @@ function App() {
         )}
       </header>
 
-      {/* This is the new pyramid layout structure */}
       <main className="pyramid-layout">
         <div className="pyramid-row">
           {bands.slice(0, 1).map((band, index) => (
