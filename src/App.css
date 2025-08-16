@@ -1,0 +1,15 @@
+/* src/App.css */
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f0f2f5; margin: 0; }
+.app-container { max-width: 800px; margin: auto; padding: 20px; }
+header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid #ddd; margin-bottom: 30px; }
+.user-info { display: flex; align-items: center; gap: 15px; }
+button { cursor: pointer; padding: 10px 15px; border: none; border-radius: 5px; background-color: #007bff; color: white; font-weight: bold; transition: background-color 0.2s; }
+button:hover { background-color: #0056b3; }
+button:disabled { background-color: #ccc; cursor: not-allowed; }
+
+.bands-list { display: flex; flex-direction: column; gap: 15px; }
+.band-card { display: flex; align-items: center; background-color: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: all 0.5s ease-in-out; }
+.band-image { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; margin-right: 20px; }
+.band-details { flex-grow: 1; }
+.vote-info { display: flex; justify-content: space-between; align-items: center; }
+.percentage { font-size: 2em; font-weight: bold; color: #333; }
