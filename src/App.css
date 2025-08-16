@@ -20,6 +20,12 @@ header {
   margin-bottom: 30px;
 }
 
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
 button {
   cursor: pointer;
   padding: 10px 15px;
@@ -29,17 +35,25 @@ button {
   color: white;
   font-weight: bold;
 }
+button:disabled { background-color: #ccc; cursor: not-allowed; }
 
-/* --- The Correct Pyramid Layout --- */
-.bands-list {
+/* --- New Pyramid Layout Styles --- */
+.pyramid-layout {
   display: flex;
+  flex-direction: column;
+  align-items: center; /* Center the rows horizontally */
+  gap: 20px;
+}
+
+.pyramid-row {
+  display: flex;
+  justify-content: center; /* Center cards within their row */
   flex-wrap: wrap;
-  justify-content: center; /* Center items on each line */
   gap: 20px;
 }
 
 .band-card {
-  width: 300px; /* Base width for all cards */
+  width: 300px;
   background-color: white;
   border-radius: 10px;
   padding: 20px;
@@ -58,19 +72,19 @@ button {
   margin-bottom: 15px;
 }
 
-/* This is the trick that creates the pyramid rows */
-/* After the 1st band, create an invisible full-width element to force a line break */
-.bands-list > :nth-child(1)::after {
-  content: "";
-  flex-basis: 100%;
-  width: 0;
-  height: 0;
+.band-details h2 {
+  margin: 0 0 15px 0;
 }
 
-/* After the 3rd band (the 2nd on its row), do it again */
-.bands-list > :nth-child(3)::after {
-  content: "";
-  flex-basis: 100%;
-  width: 0;
-  height: 0;
+.vote-info {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.percentage {
+  font-size: 2.5em;
+  font-weight: bold;
+  color: #333;
 }
