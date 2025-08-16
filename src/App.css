@@ -1,15 +1,91 @@
 /* src/App.css */
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f0f2f5; margin: 0; }
-.app-container { max-width: 800px; margin: auto; padding: 20px; }
-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 1px solid #ddd; margin-bottom: 30px; }
-.user-info { display: flex; align-items: center; gap: 15px; }
-button { cursor: pointer; padding: 10px 15px; border: none; border-radius: 5px; background-color: #007bff; color: white; font-weight: bold; transition: background-color 0.2s; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: #f0f2f5;
+  margin: 0;
+}
+
+.app-container {
+  max-width: 1200px; /* Widen the container for more space */
+  margin: auto;
+  padding: 20px;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 30px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+button {
+  cursor: pointer;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
 button:hover { background-color: #0056b3; }
 button:disabled { background-color: #ccc; cursor: not-allowed; }
 
-.bands-list { display: flex; flex-direction: column; gap: 15px; }
-.band-card { display: flex; align-items: center; background-color: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: all 0.5s ease-in-out; }
-.band-image { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; margin-right: 20px; }
-.band-details { flex-grow: 1; }
-.vote-info { display: flex; justify-content: space-between; align-items: center; }
-.percentage { font-size: 2em; font-weight: bold; color: #333; }
+/* --- KEY CHANGES FOR THE LAYOUT --- */
+.bands-list {
+  display: flex; /* Arrange cards in a row */
+  flex-wrap: wrap; /* Allow cards to wrap to the next line */
+  justify-content: center; /* Center the cards horizontally */
+  gap: 20px; /* The space between each card */
+}
+
+.band-card {
+  width: 300px; /* Give each card a fixed width */
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column; /* Stack content vertically inside the card */
+  align-items: center; /* Center the content */
+  text-align: center;
+}
+
+.band-card:hover {
+  transform: translateY(-5px); /* Add a little lift effect on hover */
+}
+
+.band-image {
+  width: 150px; /* Make the image larger */
+  height: 150px;
+  object-fit: cover;
+  border-radius: 50%; /* Make it circular */
+  margin-bottom: 15px;
+  border: 3px solid #eee;
+}
+
+.band-details h2 {
+  margin: 0 0 15px 0; /* Adjust spacing for the name */
+}
+
+.vote-info {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.percentage {
+  font-size: 2.5em; /* Make percentage bigger */
+  font-weight: bold;
+  color: #333;
+}
