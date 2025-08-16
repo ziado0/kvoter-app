@@ -19,7 +19,7 @@ function App() {
     });
 
     // Listen for real-time updates from the 'bands' collection in Firestore
-    const unsubscribeFirestore = onSnapshot(collection(db, 'bands'), (snapshot) => {
+    const unsubscribeFirestore = onSnapshot(collection(db, 'Bands'), (snapshot) => {
       const bandsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       const sortedBands = bandsData.sort((a, b) => b.votes - a.votes);
       setBands(sortedBands);
