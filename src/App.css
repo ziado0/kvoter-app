@@ -6,7 +6,7 @@ body {
 }
 
 .app-container {
-  max-width: 1200px; /* Widen the container for more space */
+  max-width: 1200px;
   margin: auto;
   padding: 20px;
 }
@@ -20,12 +20,6 @@ header {
   margin-bottom: 30px;
 }
 
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
 button {
   cursor: pointer;
   padding: 10px 15px;
@@ -34,58 +28,49 @@ button {
   background-color: #007bff;
   color: white;
   font-weight: bold;
-  transition: background-color 0.2s;
 }
-button:hover { background-color: #0056b3; }
-button:disabled { background-color: #ccc; cursor: not-allowed; }
 
-/* --- KEY CHANGES FOR THE LAYOUT --- */
+/* --- The Correct Pyramid Layout --- */
 .bands-list {
-  display: flex; /* Arrange cards in a row */
-  flex-wrap: wrap; /* Allow cards to wrap to the next line */
-  justify-content: center; /* Center the cards horizontally */
-  gap: 20px; /* The space between each card */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; /* Center items on each line */
+  gap: 20px;
 }
 
 .band-card {
-  width: 300px; /* Give each card a fixed width */
+  width: 300px; /* Base width for all cards */
   background-color: white;
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  transition: transform 0.2s ease-in-out;
   display: flex;
-  flex-direction: column; /* Stack content vertically inside the card */
-  align-items: center; /* Center the content */
+  flex-direction: column;
+  align-items: center;
   text-align: center;
 }
 
-.band-card:hover {
-  transform: translateY(-5px); /* Add a little lift effect on hover */
-}
-
 .band-image {
-  width: 150px; /* Make the image larger */
+  width: 150px;
   height: 150px;
   object-fit: cover;
-  border-radius: 50%; /* Make it circular */
+  border-radius: 50%;
   margin-bottom: 15px;
-  border: 3px solid #eee;
 }
 
-.band-details h2 {
-  margin: 0 0 15px 0; /* Adjust spacing for the name */
+/* This is the trick that creates the pyramid rows */
+/* After the 1st band, create an invisible full-width element to force a line break */
+.bands-list > :nth-child(1)::after {
+  content: "";
+  flex-basis: 100%;
+  width: 0;
+  height: 0;
 }
 
-.vote-info {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.percentage {
-  font-size: 2.5em; /* Make percentage bigger */
-  font-weight: bold;
-  color: #333;
+/* After the 3rd band (the 2nd on its row), do it again */
+.bands-list > :nth-child(3)::after {
+  content: "";
+  flex-basis: 100%;
+  width: 0;
+  height: 0;
 }
