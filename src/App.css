@@ -24,12 +24,13 @@ header {
 .logo-container {
   display: flex;
   align-items: center;
-  gap: 12px; /* Space between logo and text */
+  gap: 12px;
 }
 
+/* UPDATED LOGO SIZE */
 .logo-image {
-  height: 40px;
-  width: 40px;
+  height: 60px; /* Was 40px */
+  width: 60px;  /* Was 40px */
 }
 
 /* Rule to make the "K-Voter" title dark */
