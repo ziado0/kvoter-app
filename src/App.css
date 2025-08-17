@@ -20,10 +20,16 @@ header {
   margin-bottom: 30px;
 }
 
-/* NEW: Rule to make the "K-Voter" title dark */
+/* Rule to make the "K-Voter" title dark */
 header h1 {
-  color: #1c1c1e; /* A dark, near-black color for readability */
+  color: #1c1c1e;
   margin: 0;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
 button {
@@ -35,17 +41,25 @@ button {
   color: white;
   font-weight: bold;
 }
+button:disabled { background-color: #ccc; cursor: not-allowed; }
 
-/* --- The Correct Pyramid Layout --- */
-.bands-list {
+/* --- Pyramid Layout Styles (Works with the updated App.jsx) --- */
+.pyramid-layout {
   display: flex;
+  flex-direction: column;
+  align-items: center; /* Center the rows horizontally */
+  gap: 20px;
+}
+
+.pyramid-row {
+  display: flex;
+  justify-content: center; /* Center cards within their row */
   flex-wrap: wrap;
-  justify-content: center; /* Center items on each line */
   gap: 20px;
 }
 
 .band-card {
-  width: 300px; /* Base width for all cards */
+  width: 300px;
   background-color: white;
   border-radius: 10px;
   padding: 20px;
@@ -66,7 +80,7 @@ button {
 
 .band-details h2 {
   margin: 0 0 15px 0;
-  color: #1c1c1e; /* NEW: Sets the band name color to dark */
+  color: #1c1c1e; /* Sets the band name color to dark */
 }
 
 .vote-info {
@@ -80,19 +94,4 @@ button {
   font-size: 2.5em;
   font-weight: bold;
   color: #333;
-}
-
-/* This is the trick that creates the pyramid rows */
-.bands-list > :nth-child(1)::after {
-  content: "";
-  flex-basis: 100%;
-  width: 0;
-  height: 0;
-}
-
-.bands-list > :nth-child(3)::after {
-  content: "";
-  flex-basis: 100%;
-  width: 0;
-  height: 0;
 }
