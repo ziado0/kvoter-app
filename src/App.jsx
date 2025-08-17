@@ -5,7 +5,6 @@ import { collection, onSnapshot, doc, updateDoc, increment, addDoc, query, where
 import { signInWithPopup, onAuthStateChanged, signOut } from "firebase/auth";
 import './App.css';
 
-// ... (The BandCard component remains the same as before)
 const BandCard = ({ band, onVote, user, voted, totalVotes, rank }) => {
   const percentage = totalVotes > 0 ? ((band.votes / totalVotes) * 100).toFixed(1) : 0;
   return (
@@ -15,7 +14,8 @@ const BandCard = ({ band, onVote, user, voted, totalVotes, rank }) => {
         <h2>{rank}. {band.name}</h2>
         <div className="vote-info">
           <p className="percentage">{percentage}%</p>
-          <button onClick={() => onVote(band)} disabled={!user || voted}>
+          {/* The disabled logic is now simpler */}
+          <button onClick={() => onVote(band)} disabled={voted}>
             Vote
           </button>
         </div>
@@ -24,13 +24,11 @@ const BandCard = ({ band, onVote, user, voted, totalVotes, rank }) => {
   );
 };
 
-
 function App() {
   const [bands, setBands] = useState([]);
   const [user, setUser] = useState(null);
-  const [voted, setVoted] = useState(false); // Now checks database for this
+  const [voted, setVoted] = useState(false);
 
-  // Check if the current user has already voted
   useEffect(() => {
     const checkIfVoted = async () => {
       if (user) {
@@ -46,7 +44,6 @@ function App() {
 
   useEffect(() => {
     onAuthStateChanged(auth, (currentUser) => setUser(currentUser));
-
     const unsubscribe = onSnapshot(collection(db, 'Bands'), (snapshot) => {
       const bandsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       const sortedBands = bandsData.sort((a, b) => b.votes - a.votes);
@@ -55,27 +52,52 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  // NEW handleVote function
+  // --- NEW VOTING LOGIC ---
   const handleVote = async (band) => {
-    if (!user) return alert("Please sign in to vote!");
-    if (voted) return alert("You have already voted!");
+    if (voted) {
+      alert("You have already cast your vote!");
+      return;
+    }
 
+    let currentUser = auth.currentUser;
+
+    // If user is not logged in, prompt them to sign in
+    if (!currentUser) {
+      try {
+        const result = await signInWithPopup(auth, googleProvider);
+        currentUser = result.user; // Login was successful
+      } catch (error) {
+        console.log("User cancelled the login prompt.");
+        return; // Stop the function if they don't log in
+      }
+    }
+
+    // Double-check if this newly signed-in user has already voted
+    const votesQuery = query(collection(db, "user_votes"), where("userId", "==", currentUser.uid));
+    const querySnapshot = await getDocs(votesQuery);
+    if (!querySnapshot.empty) {
+        setVoted(true);
+        alert("Your account has already voted in this poll.");
+        return;
+    }
+
+    // --- If we reach here, the user is logged in and hasn't voted ---
     // 1. Increment the band's vote count
     const bandRef = doc(db, 'Bands', band.id);
     await updateDoc(bandRef, { votes: increment(1) });
 
     // 2. Create a record of the user's vote
     await addDoc(collection(db, "user_votes"), {
-      userId: user.uid,
-      userEmail: user.email,
-      displayName: user.displayName,
+      userId: currentUser.uid,
+      userEmail: currentUser.email,
+      displayName: currentUser.displayName,
       bandId: band.id,
       bandName: band.name,
       timestamp: new Date()
     });
 
-    setVoted(true); // Update the UI to disable voting
-    alert("Thank you for your vote!");
+    setVoted(true);
+    alert(`Your vote for ${band.name} has been counted. Thank you!`);
   };
 
   const signIn = () => signInWithPopup(auth, googleProvider).catch(console.error);
@@ -84,10 +106,13 @@ function App() {
   const totalVotes = bands.reduce((sum, band) => sum + band.votes, 0);
 
   return (
-    // ... (The JSX for the layout remains the same as before)
     <div className="app-container">
       <header>
-        <h1>K-Voter 🎤</h1>
+        {/* --- NEW LOGO STRUCTURE --- */}
+        <div className="logo-container">
+          <img src="/logo.png" alt="K-Voter Logo" className="logo-image" />
+          <h1>K-Voter</h1>
+        </div>
         {user ? (
           <div className="user-info">
             <span>Welcome, {user.displayName}!</span>
@@ -99,6 +124,7 @@ function App() {
       </header>
 
       <main className="pyramid-layout">
+        {/* ... (The rest of the JSX layout remains the same) ... */}
         <div className="pyramid-row">
           {bands.slice(0, 1).map((band, index) => (
             <BandCard key={band.id} band={band} onVote={handleVote} user={user} voted={voted} totalVotes={totalVotes} rank={index + 1} />

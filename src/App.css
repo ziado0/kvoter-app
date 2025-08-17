@@ -20,6 +20,18 @@ header {
   margin-bottom: 30px;
 }
 
+/* Styles for the new logo */
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px; /* Space between logo and text */
+}
+
+.logo-image {
+  height: 40px;
+  width: 40px;
+}
+
 /* Rule to make the "K-Voter" title dark */
 header h1 {
   color: #1c1c1e;
