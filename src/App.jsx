@@ -14,7 +14,6 @@ const BandCard = ({ band, onVote, user, voted, totalVotes, rank }) => {
         <h2>{rank}. {band.name}</h2>
         <div className="vote-info">
           <p className="percentage">{percentage}%</p>
-          {/* The disabled logic is now simpler */}
           <button onClick={() => onVote(band)} disabled={voted}>
             Vote
           </button>
@@ -52,7 +51,6 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  // --- NEW VOTING LOGIC ---
   const handleVote = async (band) => {
     if (voted) {
       alert("You have already cast your vote!");
@@ -61,18 +59,16 @@ function App() {
 
     let currentUser = auth.currentUser;
 
-    // If user is not logged in, prompt them to sign in
     if (!currentUser) {
       try {
         const result = await signInWithPopup(auth, googleProvider);
-        currentUser = result.user; // Login was successful
+        currentUser = result.user;
       } catch (error) {
         console.log("User cancelled the login prompt.");
-        return; // Stop the function if they don't log in
+        return;
       }
     }
 
-    // Double-check if this newly signed-in user has already voted
     const votesQuery = query(collection(db, "user_votes"), where("userId", "==", currentUser.uid));
     const querySnapshot = await getDocs(votesQuery);
     if (!querySnapshot.empty) {
@@ -81,12 +77,9 @@ function App() {
         return;
     }
 
-    // --- If we reach here, the user is logged in and hasn't voted ---
-    // 1. Increment the band's vote count
     const bandRef = doc(db, 'Bands', band.id);
     await updateDoc(bandRef, { votes: increment(1) });
 
-    // 2. Create a record of the user's vote
     await addDoc(collection(db, "user_votes"), {
       userId: currentUser.uid,
       userEmail: currentUser.email,
@@ -108,7 +101,6 @@ function App() {
   return (
     <div className="app-container">
       <header>
-        {/* --- NEW LOGO STRUCTURE --- */}
         <div className="logo-container">
           <img src="/logo.png" alt="K-Voter Logo" className="logo-image" />
           <h1>K-Voter</h1>
@@ -124,7 +116,6 @@ function App() {
       </header>
 
       <main className="pyramid-layout">
-        {/* ... (The rest of the JSX layout remains the same) ... */}
         <div className="pyramid-row">
           {bands.slice(0, 1).map((band, index) => (
             <BandCard key={band.id} band={band} onVote={handleVote} user={user} voted={voted} totalVotes={totalVotes} rank={index + 1} />
@@ -136,7 +127,8 @@ function App() {
           ))}
         </div>
         <div className="pyramid-row">
-          {bands.slice(3, 10).map((band, index) => (
+          {/* THE FIX IS HERE: .slice(3) instead of .slice(3, 10) */}
+          {bands.slice(3).map((band, index) => (
             <BandCard key={band.id} band={band} onVote={handleVote} user={user} voted={voted} totalVotes={totalVotes} rank={index + 4} />
           ))}
         </div>
