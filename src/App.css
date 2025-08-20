@@ -33,9 +33,9 @@ header h1 {
 
 .user-info {
   display: flex;
-  flex-direction: column; /* UPDATED: Stacks the items vertically */
+  flex-direction: column;
   align-items: center;
-  gap: 10px;               /* Adjusts vertical space between items */
+  gap: 10px;
 }
 
 button {
@@ -49,30 +49,74 @@ button {
 }
 button:disabled { background-color: #ccc; cursor: not-allowed; }
 
-.login-button {
-  padding: 8px 16px;
-  font-size: 1em;
-}
-
 .sponsorship-space {
   height: 90px;
   border: 2px dashed #ccc;
   margin: 30px auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #aaa;
-  font-style: italic;
-  font-size: 1.1em;
   max-width: 728px;
   width: 100%;
 }
 
+/* --- Login Container Styles --- */
+.login-container {
+  max-width: 400px;
+  margin: 40px auto;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.login-form h3 {
+  text-align: center;
+  margin-top: 0;
+  color: #333;
+}
+.login-form input {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 1em;
+}
+.form-buttons {
+  display: flex;
+  gap: 10px;
+}
+.form-buttons button {
+  flex-grow: 1;
+}
+.divider {
+  text-align: center;
+  margin: 20px 0;
+  color: #888;
+}
+.social-logins {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.social-button {
+  width: 100%;
+  padding: 12px;
+}
+.social-button.google {
+  background-color: #4285F4;
+}
+.social-button.apple {
+  background-color: #000000;
+}
+
+/* --- Pyramid Layout Styles --- */
 .pyramid-layout {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 20px;
+  margin-top: 40px;
 }
 
 .pyramid-row {
