@@ -94,7 +94,6 @@ function App() {
 
   return (
     <div className="app-container">
-      {/* --- NEW HEADER STRUCTURE --- */}
       <header>
         <img src="/logo.png" alt="K-Voter Logo" className="logo-image" />
         <h1>K-Voter</h1>
@@ -110,10 +109,7 @@ function App() {
         )}
       </header>
 
-      {/* --- NEW Sponsorship Placeholder --- */}
-      <div className="sponsorship-space">
-        Future Sponsorship
-      </div>
+      <div className="sponsorship-space"></div>
 
       <main className="pyramid-layout">
         <div className="pyramid-row">
