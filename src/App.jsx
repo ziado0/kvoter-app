@@ -1,13 +1,8 @@
 // src/App.jsx
 import React, { useState, useEffect } from 'react';
 import { db, auth, googleProvider } from './firebase';
-import {
-  collection, onSnapshot, doc, updateDoc, increment, addDoc, query, where, getDocs
-} from 'firebase/firestore';
-import {
-  signInWithPopup, onAuthStateChanged, signOut,
-  createUserWithEmailAndPassword, signInWithEmailAndPassword
-} from "firebase/auth";
+import { collection, onSnapshot, doc, updateDoc, increment, addDoc, query, where, getDocs } from 'firebase/firestore';
+import { signInWithPopup, onAuthStateChanged, signOut } from "firebase/auth";
 import './App.css';
 
 const BandCard = ({ band, onVote, voted, totalVotes }) => {
@@ -36,9 +31,6 @@ function App() {
   const [bands, setBands] = useState([]);
   const [user, setUser] = useState(null);
   const [voted, setVoted] = useState(false);
-  
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
 
   useEffect(() => {
     const checkIfVoted = async () => {
@@ -65,7 +57,8 @@ function App() {
 
   const handleVote = async (band) => {
     if (voted) {
-      alert("You have already cast your vote!"); return;
+      alert("You have already cast your vote!");
+      return;
     }
     let currentUser = auth.currentUser;
     if (!currentUser) {
@@ -73,46 +66,33 @@ function App() {
         const result = await signInWithPopup(auth, googleProvider);
         currentUser = result.user;
       } catch (error) {
-        console.log("User cancelled the login prompt."); return;
+        console.log("User cancelled the login prompt.");
+        return;
       }
     }
     const votesQuery = query(collection(db, "user_votes"), where("userId", "==", currentUser.uid));
     const querySnapshot = await getDocs(votesQuery);
     if (!querySnapshot.empty) {
         setVoted(true);
-        alert("Your account has already voted in this poll."); return;
+        alert("Your account has already voted in this poll.");
+        return;
     }
     const bandRef = doc(db, 'Bands', band.id);
     await updateDoc(bandRef, { votes: increment(1) });
     await addDoc(collection(db, "user_votes"), {
-      userId: currentUser.uid, userEmail: currentUser.email, displayName: currentUser.displayName,
-      bandId: band.id, bandName: band.name, timestamp: new Date()
+      userId: currentUser.uid,
+      userEmail: currentUser.email,
+      displayName: currentUser.displayName,
+      bandId: band.id,
+      bandName: band.name,
+      timestamp: new Date()
     });
     setVoted(true);
     alert(`Your vote for ${band.name} has been counted. Thank you!`);
   };
 
+  const signIn = () => signInWithPopup(auth, googleProvider).catch(console.error);
   const logOut = () => signOut(auth);
-
-  const signInWithGoogle = () => signInWithPopup(auth, googleProvider).catch(error => alert(error.message));
-  
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-    } catch (error) {
-      alert(error.message);
-    }
-  };
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-    } catch (error) {
-      alert(error.message);
-    }
-  };
   
   const totalVotes = bands.reduce((sum, band) => sum + band.votes, 0);
 
@@ -121,44 +101,22 @@ function App() {
       <header>
         <img src="/logo.png" alt="K-Voter Logo" className="logo-image" />
         <h1>K-Voter</h1>
-        {user && (
+        {user ? (
           <div className="user-info">
             <span>Welcome, {user.displayName || user.email}!</span>
             <button onClick={logOut}>Sign Out</button>
           </div>
+        ) : (
+          <button onClick={signIn} className="login-button">
+            Sign in with Google
+          </button>
         )}
       </header>
-      
-      <div className="sponsorship-space"></div>
 
-      {!user && (
-        <div className="login-container">
-          <form className="login-form">
-            <h3>Login or Register</h3>
-            <input 
-              type="email" 
-              placeholder="Email" 
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
-            />
-            <input 
-              type="password" 
-              placeholder="Password" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <div className="form-buttons">
-              <button onClick={handleLogin}>Login</button>
-              <button onClick={handleRegister}>Register</button>
-            </div>
-          </form>
-          <div className="divider">OR</div>
-          <div className="social-logins">
-            <button onClick={signInWithGoogle} className="social-button google">Sign in with Google</button>
-            {/* Apple button removed from here */}
-          </div>
-        </div>
-      )}
+      <div className="sponsorship-space">
+        <p>for sponsorships contact us at</p>
+        <p>info@kvoter.com</p>
+      </div>
 
       <main className="pyramid-layout">
         <div className="pyramid-row">
