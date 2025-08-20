@@ -6,11 +6,10 @@ import {
 } from 'firebase/firestore';
 import {
   signInWithPopup, onAuthStateChanged, signOut,
-  createUserWithEmailAndPassword, signInWithEmailAndPassword, OAuthProvider
+  createUserWithEmailAndPassword, signInWithEmailAndPassword
 } from "firebase/auth";
 import './App.css';
 
-// The BandCard component remains the same
 const BandCard = ({ band, onVote, voted, totalVotes }) => {
   const percentage = totalVotes > 0 ? (band.votes / totalVotes) * 100 : 0;
   return (
@@ -38,12 +37,10 @@ function App() {
   const [user, setUser] = useState(null);
   const [voted, setVoted] = useState(false);
   
-  // NEW state for email and password fields
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   useEffect(() => {
-    // ... (This useEffect block for checking vote status remains the same)
     const checkIfVoted = async () => {
       if (user) {
         const votesQuery = query(collection(db, "user_votes"), where("userId", "==", user.uid));
@@ -57,7 +54,6 @@ function App() {
   }, [user]);
 
   useEffect(() => {
-    // ... (This useEffect block for auth state and band loading remains the same)
     onAuthStateChanged(auth, (currentUser) => setUser(currentUser));
     const unsubscribe = onSnapshot(collection(db, 'Bands'), (snapshot) => {
       const bandsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -68,7 +64,6 @@ function App() {
   }, []);
 
   const handleVote = async (band) => {
-    // ... (The handleVote function remains the same)
     if (voted) {
       alert("You have already cast your vote!"); return;
     }
@@ -99,16 +94,10 @@ function App() {
 
   const logOut = () => signOut(auth);
 
-  // --- NEW SIGN-IN AND REGISTRATION FUNCTIONS ---
   const signInWithGoogle = () => signInWithPopup(auth, googleProvider).catch(error => alert(error.message));
   
-  const signInWithApple = () => {
-    const provider = new OAuthProvider('apple.com');
-    signInWithPopup(auth, provider).catch(error => alert(error.message));
-  };
-  
   const handleRegister = async (e) => {
-    e.preventDefault(); // Prevent form from reloading the page
+    e.preventDefault();
     try {
       await createUserWithEmailAndPassword(auth, email, password);
     } catch (error) {
@@ -132,7 +121,7 @@ function App() {
       <header>
         <img src="/logo.png" alt="K-Voter Logo" className="logo-image" />
         <h1>K-Voter</h1>
-        {user && ( // Show user info only if logged in
+        {user && (
           <div className="user-info">
             <span>Welcome, {user.displayName || user.email}!</span>
             <button onClick={logOut}>Sign Out</button>
@@ -142,7 +131,6 @@ function App() {
       
       <div className="sponsorship-space"></div>
 
-      {/* --- NEW LOGIN FORM FOR LOGGED-OUT USERS --- */}
       {!user && (
         <div className="login-container">
           <form className="login-form">
@@ -167,7 +155,7 @@ function App() {
           <div className="divider">OR</div>
           <div className="social-logins">
             <button onClick={signInWithGoogle} className="social-button google">Sign in with Google</button>
-            <button onClick={signInWithApple} className="social-button apple">Sign in with Apple</button>
+            {/* Apple button removed from here */}
           </div>
         </div>
       )}
