@@ -5,13 +5,12 @@ import { collection, onSnapshot, doc, updateDoc, increment, addDoc, query, where
 import { signInWithPopup, onAuthStateChanged, signOut } from "firebase/auth";
 import './App.css';
 
-const BandCard = ({ band, onVote, user, voted, totalVotes }) => { // The 'rank' prop is no longer needed
+const BandCard = ({ band, onVote, voted, totalVotes }) => {
   const percentage = totalVotes > 0 ? ((band.votes / totalVotes) * 100).toFixed(1) : 0;
   return (
     <div className="band-card">
       <img src={band.imageUrl} alt={band.name} className="band-image" />
       <div className="band-details">
-        {/* THE FIX IS HERE: Removed the rank number */}
         <h2>{band.name}</h2>
         <div className="vote-info">
           <p className="percentage">{percentage}%</p>
@@ -100,30 +99,38 @@ function App() {
           <img src="/logo.png" alt="K-Voter Logo" className="logo-image" />
           <h1>K-Voter</h1>
         </div>
-        {user ? (
+        {/* The Sign Out button still appears here when logged in */}
+        {user && (
           <div className="user-info">
             <span>Welcome, {user.displayName}!</span>
             <button onClick={logOut}>Sign Out</button>
           </div>
-        ) : (
-          <button onClick={signIn}>Sign In with Google</button>
         )}
       </header>
+
+      {/* NEW: This section only appears when the user is LOGGED OUT */}
+      {!user && (
+        <div className="login-prompt">
+          <button onClick={signIn} className="login-button">
+            Sign in with Google
+          </button>
+        </div>
+      )}
 
       <main className="pyramid-layout">
         <div className="pyramid-row">
           {bands.slice(0, 1).map((band) => (
-            <BandCard key={band.id} band={band} onVote={handleVote} user={user} voted={voted} totalVotes={totalVotes} />
+            <BandCard key={band.id} band={band} onVote={handleVote} voted={voted} totalVotes={totalVotes} />
           ))}
         </div>
         <div className="pyramid-row">
           {bands.slice(1, 3).map((band) => (
-            <BandCard key={band.id} band={band} onVote={handleVote} user={user} voted={voted} totalVotes={totalVotes} />
+            <BandCard key={band.id} band={band} onVote={handleVote} voted={voted} totalVotes={totalVotes} />
           ))}
         </div>
         <div className="pyramid-row">
           {bands.slice(3).map((band) => (
-            <BandCard key={band.id} band={band} onVote={handleVote} user={user} voted={voted} totalVotes={totalVotes} />
+            <BandCard key={band.id} band={band} onVote={handleVote} voted={voted} totalVotes={totalVotes} />
           ))}
         </div>
       </main>
