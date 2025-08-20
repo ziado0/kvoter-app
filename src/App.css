@@ -11,35 +11,37 @@ body {
   padding: 20px;
 }
 
+/* --- UPDATED HEADER STYLES --- */
 header {
+  position: relative; /* Create a positioning context */
   display: flex;
-  justify-content: space-between;
+  justify-content: center; /* Center the main content (logo/title) */
   align-items: center;
   padding-bottom: 20px;
   border-bottom: 1px solid #ddd;
   margin-bottom: 30px;
 }
 
-/* Styles for the new logo */
 .logo-container {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-/* UPDATED LOGO SIZE */
 .logo-image {
-  height: 60px; /* Was 40px */
-  width: 60px;  /* Was 40px */
+  height: 60px;
+  width: 60px;
 }
 
-/* Rule to make the "K-Voter" title dark */
 header h1 {
   color: #1c1c1e;
   margin: 0;
 }
 
+/* Position the user info on the right edge */
 .user-info {
+  position: absolute;
+  right: 0;
   display: flex;
   align-items: center;
   gap: 15px;
@@ -56,17 +58,17 @@ button {
 }
 button:disabled { background-color: #ccc; cursor: not-allowed; }
 
-/* --- Pyramid Layout Styles (Works with the updated App.jsx) --- */
+/* --- Pyramid Layout Styles --- */
 .pyramid-layout {
   display: flex;
   flex-direction: column;
-  align-items: center; /* Center the rows horizontally */
+  align-items: center;
   gap: 20px;
 }
 
 .pyramid-row {
   display: flex;
-  justify-content: center; /* Center cards within their row */
+  justify-content: center;
   flex-wrap: wrap;
   gap: 20px;
 }
@@ -93,7 +95,7 @@ button:disabled { background-color: #ccc; cursor: not-allowed; }
 
 .band-details h2 {
   margin: 0 0 15px 0;
-  color: #1c1c1e; /* Sets the band name color to dark */
+  color: #1c1c1e;
 }
 
 .vote-info {

@@ -5,13 +5,14 @@ import { collection, onSnapshot, doc, updateDoc, increment, addDoc, query, where
 import { signInWithPopup, onAuthStateChanged, signOut } from "firebase/auth";
 import './App.css';
 
-const BandCard = ({ band, onVote, user, voted, totalVotes, rank }) => {
+const BandCard = ({ band, onVote, user, voted, totalVotes }) => { // The 'rank' prop is no longer needed
   const percentage = totalVotes > 0 ? ((band.votes / totalVotes) * 100).toFixed(1) : 0;
   return (
     <div className="band-card">
       <img src={band.imageUrl} alt={band.name} className="band-image" />
       <div className="band-details">
-        <h2>{rank}. {band.name}</h2>
+        {/* THE FIX IS HERE: Removed the rank number */}
+        <h2>{band.name}</h2>
         <div className="vote-info">
           <p className="percentage">{percentage}%</p>
           <button onClick={() => onVote(band)} disabled={voted}>
@@ -56,9 +57,7 @@ function App() {
       alert("You have already cast your vote!");
       return;
     }
-
     let currentUser = auth.currentUser;
-
     if (!currentUser) {
       try {
         const result = await signInWithPopup(auth, googleProvider);
@@ -68,7 +67,6 @@ function App() {
         return;
       }
     }
-
     const votesQuery = query(collection(db, "user_votes"), where("userId", "==", currentUser.uid));
     const querySnapshot = await getDocs(votesQuery);
     if (!querySnapshot.empty) {
@@ -76,10 +74,8 @@ function App() {
         alert("Your account has already voted in this poll.");
         return;
     }
-
     const bandRef = doc(db, 'Bands', band.id);
     await updateDoc(bandRef, { votes: increment(1) });
-
     await addDoc(collection(db, "user_votes"), {
       userId: currentUser.uid,
       userEmail: currentUser.email,
@@ -88,7 +84,6 @@ function App() {
       bandName: band.name,
       timestamp: new Date()
     });
-
     setVoted(true);
     alert(`Your vote for ${band.name} has been counted. Thank you!`);
   };
@@ -117,19 +112,18 @@ function App() {
 
       <main className="pyramid-layout">
         <div className="pyramid-row">
-          {bands.slice(0, 1).map((band, index) => (
-            <BandCard key={band.id} band={band} onVote={handleVote} user={user} voted={voted} totalVotes={totalVotes} rank={index + 1} />
+          {bands.slice(0, 1).map((band) => (
+            <BandCard key={band.id} band={band} onVote={handleVote} user={user} voted={voted} totalVotes={totalVotes} />
           ))}
         </div>
         <div className="pyramid-row">
-          {bands.slice(1, 3).map((band, index) => (
-            <BandCard key={band.id} band={band} onVote={handleVote} user={user} voted={voted} totalVotes={totalVotes} rank={index + 2} />
+          {bands.slice(1, 3).map((band) => (
+            <BandCard key={band.id} band={band} onVote={handleVote} user={user} voted={voted} totalVotes={totalVotes} />
           ))}
         </div>
         <div className="pyramid-row">
-          {/* THE FIX IS HERE: .slice(3) instead of .slice(3, 10) */}
-          {bands.slice(3).map((band, index) => (
-            <BandCard key={band.id} band={band} onVote={handleVote} user={user} voted={voted} totalVotes={totalVotes} rank={index + 4} />
+          {bands.slice(3).map((band) => (
+            <BandCard key={band.id} band={band} onVote={handleVote} user={user} voted={voted} totalVotes={totalVotes} />
           ))}
         </div>
       </main>
