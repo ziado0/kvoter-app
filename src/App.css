@@ -11,25 +11,19 @@ body {
   padding: 20px;
 }
 
+/* --- UPDATED HEADER STYLES --- */
 header {
-  position: relative;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  padding-bottom: 20px;
+  flex-direction: column; /* Stack items vertically */
+  align-items: center;   /* Center them horizontally */
+  gap: 20px;             /* Space between logo, title, and button */
+  padding-bottom: 30px;
   border-bottom: 1px solid #ddd;
-  margin-bottom: 30px;
-}
-
-.logo-container {
-  display: flex;
-  align-items: center;
-  gap: 12px;
 }
 
 .logo-image {
-  height: 60px;
-  width: 60px;
+  height: 80px; /* Made the logo bigger */
+  width: 80px;
 }
 
 header h1 {
@@ -38,8 +32,6 @@ header h1 {
 }
 
 .user-info {
-  position: absolute;
-  right: 0;
   display: flex;
   align-items: center;
   gap: 15px;
@@ -56,16 +48,26 @@ button {
 }
 button:disabled { background-color: #ccc; cursor: not-allowed; }
 
-/* --- NEW styles for the centered login prompt --- */
-.login-prompt {
-  text-align: center;
-  margin-bottom: 40px; /* Adds space between login button and bands */
-}
-
 .login-button {
-  padding: 12px 24px; /* Makes the login button a bit bigger */
+  padding: 12px 24px;
   font-size: 1.1em;
 }
+
+/* --- NEW Sponsorship Placeholder Style --- */
+.sponsorship-space {
+  height: 90px;
+  border: 2px dashed #ccc;
+  margin: 30px auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #aaa;
+  font-style: italic;
+  font-size: 1.1em;
+  max-width: 728px;
+  width: 100%;
+}
+
 
 /* --- Pyramid Layout Styles --- */
 .pyramid-layout {

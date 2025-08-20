@@ -94,28 +94,26 @@ function App() {
 
   return (
     <div className="app-container">
+      {/* --- NEW HEADER STRUCTURE --- */}
       <header>
-        <div className="logo-container">
-          <img src="/logo.png" alt="K-Voter Logo" className="logo-image" />
-          <h1>K-Voter</h1>
-        </div>
-        {/* The Sign Out button still appears here when logged in */}
-        {user && (
+        <img src="/logo.png" alt="K-Voter Logo" className="logo-image" />
+        <h1>K-Voter</h1>
+        {user ? (
           <div className="user-info">
             <span>Welcome, {user.displayName}!</span>
             <button onClick={logOut}>Sign Out</button>
           </div>
-        )}
-      </header>
-
-      {/* NEW: This section only appears when the user is LOGGED OUT */}
-      {!user && (
-        <div className="login-prompt">
+        ) : (
           <button onClick={signIn} className="login-button">
             Sign in with Google
           </button>
-        </div>
-      )}
+        )}
+      </header>
+
+      {/* --- NEW Sponsorship Placeholder --- */}
+      <div className="sponsorship-space">
+        Future Sponsorship
+      </div>
 
       <main className="pyramid-layout">
         <div className="pyramid-row">
