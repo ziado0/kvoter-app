@@ -54,14 +54,13 @@ button:disabled { background-color: #ccc; cursor: not-allowed; }
   font-size: 1em;
 }
 
-/* --- UPDATED Sponsorship Placeholder Style --- */
 .sponsorship-space {
-  min-height: 90px; /* Use min-height to allow it to grow */
+  min-height: 90px;
   border: 2px dashed #ccc;
   margin: 30px auto;
   padding: 15px;
   display: flex;
-  flex-direction: column; /* Stack text vertically */
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   color: #aaa;
@@ -70,18 +69,77 @@ button:disabled { background-color: #ccc; cursor: not-allowed; }
   max-width: 728px;
   width: 100%;
   text-align: center;
+  box-sizing: border-box; /* Ensures padding is included in the width */
 }
 
 .sponsorship-space p {
-  margin: 4px 0; /* Add small spacing between lines of text */
+  margin: 4px 0;
 }
 
-/* --- Pyramid Layout Styles --- */
+.login-container {
+  max-width: 400px;
+  margin: 40px auto;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.login-form h3 {
+  text-align: center;
+  margin-top: 0;
+  color: #333;
+}
+
+.login-form input {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 1em;
+}
+
+.form-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.form-buttons button {
+  flex-grow: 1;
+}
+
+.divider {
+  text-align: center;
+  margin: 20px 0;
+  color: #888;
+}
+
+.social-logins {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.social-button {
+  width: 100%;
+  padding: 12px;
+}
+
+.social-button.google {
+  background-color: #4285F4;
+}
+
 .pyramid-layout {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 20px;
+  margin-top: 40px;
 }
 
 .pyramid-row {
@@ -154,4 +212,13 @@ button:disabled { background-color: #ccc; cursor: not-allowed; }
 
 .vote-button {
   width: 100%;
+}
+
+/* --- ADDED FOR MOBILE RESPONSIVENESS --- */
+@media (max-width: 768px) {
+  .sponsorship-space {
+    width: 95%; /* Prevents it from touching the edges */
+    min-height: 70px;
+    font-size: 0.8em; /* About 30% smaller than 1.1em */
+  }
 }
