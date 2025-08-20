@@ -6,15 +6,19 @@ import { signInWithPopup, onAuthStateChanged, signOut } from "firebase/auth";
 import './App.css';
 
 const BandCard = ({ band, onVote, voted, totalVotes }) => {
-  const percentage = totalVotes > 0 ? ((band.votes / totalVotes) * 100).toFixed(1) : 0;
+  const percentage = totalVotes > 0 ? (band.votes / totalVotes) * 100 : 0;
   return (
     <div className="band-card">
       <img src={band.imageUrl} alt={band.name} className="band-image" />
       <div className="band-details">
         <h2>{band.name}</h2>
-        <div className="vote-info">
-          <p className="percentage">{percentage}%</p>
-          <button onClick={() => onVote(band)} disabled={voted}>
+        <div className="vote-info-container">
+          <div className="progress-bar-container">
+            <div className="progress-bar" style={{ width: `${percentage}%` }}>
+              {totalVotes > 0 && `${percentage.toFixed(1)}%`}
+            </div>
+          </div>
+          <button onClick={() => onVote(band)} disabled={voted} className="vote-button">
             Vote
           </button>
         </div>
@@ -89,7 +93,7 @@ function App() {
 
   const signIn = () => signInWithPopup(auth, googleProvider).catch(console.error);
   const logOut = () => signOut(auth);
-  
+
   const totalVotes = bands.reduce((sum, band) => sum + band.votes, 0);
 
   return (
