@@ -32,28 +32,35 @@ function App() {
   const [user, setUser] = useState(null);
   const [voted, setVoted] = useState(false);
 
+  // This useEffect now correctly checks vote status on load and when user changes
   useEffect(() => {
-    const checkIfVoted = async () => {
-      if (user) {
-        const votesQuery = query(collection(db, "user_votes"), where("userId", "==", user.uid));
+    const checkVoteStatus = async (currentUser) => {
+      if (currentUser) {
+        const votesQuery = query(collection(db, "user_votes"), where("userId", "==", currentUser.uid));
         const querySnapshot = await getDocs(votesQuery);
         setVoted(!querySnapshot.empty);
       } else {
         setVoted(false);
       }
     };
-    checkIfVoted();
-  }, [user]);
+    
+    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      checkVoteStatus(currentUser); // Check vote status when auth state changes
+    });
 
-  useEffect(() => {
-    onAuthStateChanged(auth, (currentUser) => setUser(currentUser));
-    const unsubscribe = onSnapshot(collection(db, 'Bands'), (snapshot) => {
+    const unsubscribeBands = onSnapshot(collection(db, 'Bands'), (snapshot) => {
       const bandsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       const sortedBands = bandsData.sort((a, b) => b.votes - a.votes);
       setBands(sortedBands);
     });
-    return () => unsubscribe();
-  }, []);
+
+    // Cleanup function to prevent memory leaks
+    return () => {
+      unsubscribeAuth();
+      unsubscribeBands();
+    };
+  }, []); // Empty dependency array ensures this runs once on mount
 
   const handleVote = async (band) => {
     if (voted) {
@@ -93,7 +100,7 @@ function App() {
 
   const signIn = () => signInWithPopup(auth, googleProvider).catch(console.error);
   const logOut = () => signOut(auth);
-
+  
   const totalVotes = bands.reduce((sum, band) => sum + band.votes, 0);
 
   return (
