@@ -21,13 +21,14 @@ header {
 }
 
 .logo-image {
-  height: 80px;
-  width: 80px;
+  height: 120px; /* UPDATED: Was 80px */
+  width: 120px;  /* UPDATED: Was 80px */
 }
 
 header h1 {
   color: #1c1c1e;
   margin: 0;
+  font-size: 1.4em; /* UPDATED: Was 2em */
 }
 
 .user-info {
@@ -113,7 +114,6 @@ button:disabled { background-color: #ccc; cursor: not-allowed; }
   color: #1c1c1e;
 }
 
-/* --- Progress Bar and Vote Button Styles --- */
 .vote-info-container {
   width: 100%;
   display: flex;
