@@ -37,8 +37,11 @@ function App() {
   const [user, setUser] = useState(null);
   const [voted, setVoted] = useState(false);
   
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  // State for separate login and register forms
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [registerEmail, setRegisterEmail] = useState('');
+  const [registerPassword, setRegisterPassword] = useState('');
 
   useEffect(() => {
     const checkIfVoted = async () => {
@@ -99,7 +102,7 @@ function App() {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      await createUserWithEmailAndPassword(auth, registerEmail, registerPassword);
     } catch (error) {
       alert(error.message);
     }
@@ -108,7 +111,7 @@ function App() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
     } catch (error) {
       alert(error.message);
     }
@@ -130,35 +133,52 @@ function App() {
       </header>
       
       <div className="sponsorship-space">
+        <img src="/sponsor-image.jpg" alt="Sponsorship" className="sponsor-image" />
         <p>for sponsorships contact us at</p>
         <p>info@kvoter.com</p>
       </div>
 
       {!user && (
         <div className="login-container">
+          {/* --- Login Form --- */}
           <form className="login-form">
-            <h3>Login or Register</h3>
+            <h3>Login</h3>
             <input 
               type="email" 
               placeholder="Email" 
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
+              value={loginEmail} 
+              onChange={(e) => setLoginEmail(e.target.value)} 
             />
             <input 
               type="password" 
               placeholder="Password" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)}
+              value={loginPassword} 
+              onChange={(e) => setLoginPassword(e.target.value)}
             />
-            <div className="form-buttons">
-              <button onClick={handleLogin}>Login</button>
-              <button onClick={handleRegister}>Register</button>
-            </div>
+            <button type="submit" onClick={handleLogin}>Login</button>
           </form>
+
           <div className="divider">OR</div>
-          <div className="social-logins">
-            <button onClick={signInWithGoogle} className="social-button google">Sign in with Google</button>
-          </div>
+          <button onClick={signInWithGoogle} className="social-button google">Sign in with Google</button>
+          <div className="divider"></div>
+
+          {/* --- Register Form --- */}
+          <form className="login-form">
+            <h3>Register</h3>
+            <input 
+              type="email" 
+              placeholder="Email" 
+              value={registerEmail} 
+              onChange={(e) => setRegisterEmail(e.target.value)} 
+            />
+            <input 
+              type="password" 
+              placeholder="Password" 
+              value={registerPassword} 
+              onChange={(e) => setRegisterPassword(e.target.value)}
+            />
+            <button type="submit" onClick={handleRegister}>Register</button>
+          </form>
         </div>
       )}
 
