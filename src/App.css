@@ -65,6 +65,9 @@ button:disabled { background-color: #ccc; cursor: not-allowed; }
   width: 100%;
   text-align: center;
   box-sizing: border-box;
+  background-color: white; /* UPDATED */
+  border-radius: 8px;      /* ADDED for style consistency */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* ADDED for style consistency */
 }
 
 .sponsorship-space p {
