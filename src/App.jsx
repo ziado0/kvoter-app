@@ -37,11 +37,10 @@ function App() {
   const [user, setUser] = useState(null);
   const [voted, setVoted] = useState(false);
   
-  // State for separate login and register forms
-  const [loginEmail, setLoginEmail] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
-  const [registerEmail, setRegisterEmail] = useState('');
-  const [registerPassword, setRegisterPassword] = useState('');
+  // State for the login form
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [authMode, setAuthMode] = useState('login'); // 'login' or 'register'
 
   useEffect(() => {
     const checkIfVoted = async () => {
@@ -102,7 +101,7 @@ function App() {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      await createUserWithEmailAndPassword(auth, registerEmail, registerPassword);
+      await createUserWithEmailAndPassword(auth, email, password);
     } catch (error) {
       alert(error.message);
     }
@@ -111,7 +110,7 @@ function App() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
+      await signInWithEmailAndPassword(auth, email, password);
     } catch (error) {
       alert(error.message);
     }
@@ -140,45 +139,43 @@ function App() {
 
       {!user && (
         <div className="login-container">
-          {/* --- Login Form --- */}
+          <div className="auth-tabs">
+            <button
+              className={`tab-button ${authMode === 'login' ? 'active' : ''}`}
+              onClick={() => setAuthMode('login')}
+            >
+              Login
+            </button>
+            <button
+              className={`tab-button ${authMode === 'register' ? 'active' : ''}`}
+              onClick={() => setAuthMode('register')}
+            >
+              Register
+            </button>
+          </div>
+
           <form className="login-form">
-            <h3>Login</h3>
             <input 
               type="email" 
               placeholder="Email" 
-              value={loginEmail} 
-              onChange={(e) => setLoginEmail(e.target.value)} 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
             />
             <input 
               type="password" 
               placeholder="Password" 
-              value={loginPassword} 
-              onChange={(e) => setLoginPassword(e.target.value)}
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)}
             />
-            <button type="submit" onClick={handleLogin}>Login</button>
+            {authMode === 'login' ? (
+              <button type="submit" onClick={handleLogin}>Login</button>
+            ) : (
+              <button type="submit" onClick={handleRegister}>Register</button>
+            )}
           </form>
 
           <div className="divider">OR</div>
           <button onClick={signInWithGoogle} className="social-button google">Sign in with Google</button>
-          <div className="divider"></div>
-
-          {/* --- Register Form --- */}
-          <form className="login-form">
-            <h3>Register</h3>
-            <input 
-              type="email" 
-              placeholder="Email" 
-              value={registerEmail} 
-              onChange={(e) => setRegisterEmail(e.target.value)} 
-            />
-            <input 
-              type="password" 
-              placeholder="Password" 
-              value={registerPassword} 
-              onChange={(e) => setRegisterPassword(e.target.value)}
-            />
-            <button type="submit" onClick={handleRegister}>Register</button>
-          </form>
         </div>
       )}
 
