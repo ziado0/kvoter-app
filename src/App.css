@@ -73,7 +73,7 @@ button:disabled { background-color: #ccc; cursor: not-allowed; }
 .sponsorship-space p { margin: 4px 0; }
 .sponsor-image { height: 50px; margin-bottom: 10px; }
 
-/* --- NEW COMPACT LOGIN STYLES --- */
+/* --- Compact Login Styles --- */
 .login-container {
   max-width: 400px;
   margin: 40px auto;
@@ -137,18 +137,86 @@ button:disabled { background-color: #ccc; cursor: not-allowed; }
 }
 
 /* --- Pyramid Layout Styles --- */
-.pyramid-layout {
+main.pyramid-layout {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 20px;
   margin-top: 40px;
 }
-/* ... (The rest of the CSS for pyramid, cards, and progress bar is the same) ... */
-.pyramid-row, .band-card, .band-image, .band-details, .band-details h2,
-.vote-info-container, .progress-bar-container, .progress-bar, .vote-button {
-  /* All previous styles for these classes remain unchanged */
+
+.pyramid-row {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
 }
+
+.band-card {
+  width: 300px;
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.band-image {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-bottom: 15px;
+}
+
+.band-details {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.band-details h2 {
+  margin: 0;
+  color: #1c1c1e;
+}
+
+.vote-info-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 30px;
+  background-color: #e9ecef;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #007bff;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.9em;
+  transition: width 0.4s ease-in-out;
+}
+
+.vote-button {
+  width: 100%;
+}
+
 @media (max-width: 768px) {
   .sponsorship-space {
     width: 95%;
