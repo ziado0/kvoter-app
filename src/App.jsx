@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { db, auth, googleProvider } from './firebase';
 import {
-  collection, onSnapshot, doc, updateDoc, increment, addDoc, query, where, getDocs
+  collection, onSnapshot, doc, addDoc, query, where, getDocs, runTransaction
 } from 'firebase/firestore';
 import {
   signInWithPopup, onAuthStateChanged, signOut,
@@ -37,10 +37,9 @@ function App() {
   const [user, setUser] = useState(null);
   const [voted, setVoted] = useState(false);
   
-  // State for the login form
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [authMode, setAuthMode] = useState('login'); // 'login' or 'register'
+  const [authMode, setAuthMode] = useState('login');
 
   useEffect(() => {
     const checkIfVoted = async () => {
@@ -67,55 +66,68 @@ function App() {
 
   const handleVote = async (band) => {
     if (voted) {
-      alert("You have already cast your vote!"); return;
+      alert("You have already cast your vote!");
+      return;
     }
+
     let currentUser = auth.currentUser;
     if (!currentUser) {
       try {
         const result = await signInWithPopup(auth, googleProvider);
         currentUser = result.user;
       } catch (error) {
-        console.log("User cancelled the login prompt."); return;
+        console.log("User cancelled login.");
+        return;
       }
     }
-    const votesQuery = query(collection(db, "user_votes"), where("userId", "==", currentUser.uid));
-    const querySnapshot = await getDocs(votesQuery);
-    if (!querySnapshot.empty) {
+
+    try {
+      await runTransaction(db, async (transaction) => {
+        const userVoteRef = doc(collection(db, "user_votes"));
+        const bandRef = doc(db, "Bands", band.id);
+
+        const userVotesQuery = query(collection(db, "user_votes"), where("userId", "==", currentUser.uid));
+        // Note: Transaction reads should use transaction.get() if they are part of the transaction's logic,
+        // but for a pre-check, a direct getDocs is acceptable. For strict atomicity, this check
+        // would also be inside the transaction's read phase.
+        const userVotesSnap = await getDocs(userVotesQuery);
+        if (!userVotesSnap.empty) {
+          throw new Error("You have already voted.");
+        }
+
+        const bandDoc = await transaction.get(bandRef);
+        if (!bandDoc.exists()) {
+          throw new Error("Band does not exist!");
+        }
+
+        const newVoteCount = bandDoc.data().votes + 1;
+        transaction.update(bandRef, { votes: newVoteCount });
+        transaction.set(userVoteRef, {
+          userId: currentUser.uid,
+          userEmail: currentUser.email,
+          displayName: currentUser.displayName,
+          bandId: band.id,
+          bandName: band.name,
+          timestamp: new Date()
+        });
+      });
+
+      setVoted(true);
+      alert(`Your vote for ${band.name} has been counted. Thank you!`);
+
+    } catch (e) {
+      console.error("Vote transaction failed: ", e);
+      alert(e.message);
+      if (e.message === "You have already voted.") {
         setVoted(true);
-        alert("Your account has already voted in this poll."); return;
+      }
     }
-    const bandRef = doc(db, 'Bands', band.id);
-    await updateDoc(bandRef, { votes: increment(1) });
-    await addDoc(collection(db, "user_votes"), {
-      userId: currentUser.uid, userEmail: currentUser.email, displayName: currentUser.displayName,
-      bandId: band.id, bandName: band.name, timestamp: new Date()
-    });
-    setVoted(true);
-    alert(`Your vote for ${band.name} has been counted. Thank you!`);
   };
 
   const logOut = () => signOut(auth);
-
   const signInWithGoogle = () => signInWithPopup(auth, googleProvider).catch(error => alert(error.message));
-  
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-    } catch (error) {
-      alert(error.message);
-    }
-  };
-
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-    } catch (error) {
-      alert(error.message);
-    }
-  };
-  
+  const handleRegister = async (e) => { e.preventDefault(); try { await createUserWithEmailAndPassword(auth, email, password); } catch (error) { alert(error.message); } };
+  const handleLogin = async (e) => { e.preventDefault(); try { await signInWithEmailAndPassword(auth, email, password); } catch (error) { alert(error.message); } };
   const totalVotes = bands.reduce((sum, band) => sum + band.votes, 0);
 
   return (
