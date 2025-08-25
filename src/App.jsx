@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { db, auth, googleProvider } from './firebase';
 import {
-  collection, onSnapshot, doc, addDoc, query, where, getDocs, runTransaction
+  collection, onSnapshot, doc, query, where, getDocs, runTransaction, setDoc
 } from 'firebase/firestore';
 import {
   signInWithPopup, onAuthStateChanged, signOut,
@@ -10,20 +10,20 @@ import {
 } from "firebase/auth";
 import './App.css';
 
-const BandCard = ({ band, onVote, voted, totalVotes }) => {
-  const percentage = totalVotes > 0 ? (band.votes / totalVotes) * 100 : 0;
+const GroupCard = ({ group, onVote, voted, totalVotes }) => {
+  const percentage = totalVotes > 0 ? (group.votes / totalVotes) * 100 : 0;
   return (
     <div className="band-card">
-      <img src={band.imageUrl} alt={band.name} className="band-image" />
+      <img src={group.imageUrl} alt={group.name} className="band-image" />
       <div className="band-details">
-        <h2>{band.name}</h2>
+        <h2>{group.name}</h2>
         <div className="vote-info-container">
           <div className="progress-bar-container">
             <div className="progress-bar" style={{ width: `${percentage}%` }}>
               {totalVotes > 0 && `${percentage.toFixed(1)}%`}
             </div>
           </div>
-          <button onClick={() => onVote(band)} disabled={voted} className="vote-button">
+          <button onClick={() => onVote(group)} disabled={voted} className="vote-button">
             Vote
           </button>
         </div>
@@ -33,10 +33,10 @@ const BandCard = ({ band, onVote, voted, totalVotes }) => {
 };
 
 function App() {
-  const [bands, setBands] = useState([]);
+  const [groups, setGroups] = useState([]);
   const [user, setUser] = useState(null);
   const [voted, setVoted] = useState(false);
-  
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [authMode, setAuthMode] = useState('login');
@@ -44,9 +44,12 @@ function App() {
   useEffect(() => {
     const checkIfVoted = async () => {
       if (user) {
-        const votesQuery = query(collection(db, "user_votes"), where("userId", "==", user.uid));
-        const querySnapshot = await getDocs(votesQuery);
-        setVoted(!querySnapshot.empty);
+        const todayGMT = new Date().toISOString().slice(0, 10);
+        const voteDocId = `${user.uid}_${todayGMT}`;
+        const voteDocRef = doc(db, "user_votes", voteDocId);
+        // A direct getDoc is more efficient here than a query
+        const voteDocSnap = await getDoc(voteDocRef);
+        setVoted(voteDocSnap.exists());
       } else {
         setVoted(false);
       }
@@ -57,16 +60,16 @@ function App() {
   useEffect(() => {
     onAuthStateChanged(auth, (currentUser) => setUser(currentUser));
     const unsubscribe = onSnapshot(collection(db, 'Bands'), (snapshot) => {
-      const bandsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      const sortedBands = bandsData.sort((a, b) => b.votes - a.votes);
-      setBands(sortedBands);
+      const groupsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const sortedGroups = groupsData.sort((a, b) => b.votes - a.votes);
+      setGroups(sortedGroups);
     });
     return () => unsubscribe();
   }, []);
 
-  const handleVote = async (band) => {
+  const handleVote = async (group) => {
     if (voted) {
-      alert("You have already cast your vote!");
+      alert("You have already voted today!");
       return;
     }
 
@@ -75,50 +78,47 @@ function App() {
       try {
         const result = await signInWithPopup(auth, googleProvider);
         currentUser = result.user;
-      } catch (error) {
-        console.log("User cancelled login.");
-        return;
-      }
+      } catch (error) { console.log("User cancelled login."); return; }
     }
+    
+    const todayGMT = new Date().toISOString().slice(0, 10);
+    const voteDocId = `${currentUser.uid}_${todayGMT}`;
 
     try {
       await runTransaction(db, async (transaction) => {
-        const userVoteRef = doc(collection(db, "user_votes"));
-        const bandRef = doc(db, "Bands", band.id);
+        const userVoteRef = doc(db, "user_votes", voteDocId);
+        const groupRef = doc(db, "Bands", group.id);
 
-        const userVotesQuery = query(collection(db, "user_votes"), where("userId", "==", currentUser.uid));
-        // Note: Transaction reads should use transaction.get() if they are part of the transaction's logic,
-        // but for a pre-check, a direct getDocs is acceptable. For strict atomicity, this check
-        // would also be inside the transaction's read phase.
-        const userVotesSnap = await getDocs(userVotesQuery);
-        if (!userVotesSnap.empty) {
-          throw new Error("You have already voted.");
+        const userVoteSnap = await transaction.get(userVoteRef);
+        if (userVoteSnap.exists()) {
+          throw new Error("You have already voted today.");
         }
 
-        const bandDoc = await transaction.get(bandRef);
-        if (!bandDoc.exists()) {
-          throw new Error("Band does not exist!");
+        const groupDoc = await transaction.get(groupRef);
+        if (!groupDoc.exists()) {
+          throw new Error("Group does not exist!");
         }
 
-        const newVoteCount = bandDoc.data().votes + 1;
-        transaction.update(bandRef, { votes: newVoteCount });
+        const newVoteCount = groupDoc.data().votes + 1;
+        transaction.update(groupRef, { votes: newVoteCount });
         transaction.set(userVoteRef, {
           userId: currentUser.uid,
           userEmail: currentUser.email,
           displayName: currentUser.displayName,
-          bandId: band.id,
-          bandName: band.name,
-          timestamp: new Date()
+          bandId: group.id,
+          bandName: group.name,
+          timestamp: new Date(),
+          voteDate: todayGMT
         });
       });
 
       setVoted(true);
-      alert(`Your vote for ${band.name} has been counted. Thank you!`);
+      alert(`Your vote for ${group.name} has been counted. Thank you!`);
 
     } catch (e) {
       console.error("Vote transaction failed: ", e);
       alert(e.message);
-      if (e.message === "You have already voted.") {
+      if (e.message.includes("already voted")) {
         setVoted(true);
       }
     }
@@ -128,7 +128,7 @@ function App() {
   const signInWithGoogle = () => signInWithPopup(auth, googleProvider).catch(error => alert(error.message));
   const handleRegister = async (e) => { e.preventDefault(); try { await createUserWithEmailAndPassword(auth, email, password); } catch (error) { alert(error.message); } };
   const handleLogin = async (e) => { e.preventDefault(); try { await signInWithEmailAndPassword(auth, email, password); } catch (error) { alert(error.message); } };
-  const totalVotes = bands.reduce((sum, band) => sum + band.votes, 0);
+  const totalVotes = groups.reduce((sum, group) => sum + group.votes, 0);
 
   return (
     <div className="app-container">
@@ -193,18 +193,18 @@ function App() {
 
       <main className="pyramid-layout">
         <div className="pyramid-row">
-          {bands.slice(0, 1).map((band) => (
-            <BandCard key={band.id} band={band} onVote={handleVote} voted={voted} totalVotes={totalVotes} />
+          {groups.slice(0, 1).map((group) => (
+            <GroupCard key={group.id} group={group} onVote={handleVote} voted={voted} totalVotes={totalVotes} />
           ))}
         </div>
         <div className="pyramid-row">
-          {bands.slice(1, 3).map((band) => (
-            <BandCard key={band.id} band={band} onVote={handleVote} voted={voted} totalVotes={totalVotes} />
+          {groups.slice(1, 3).map((group) => (
+            <GroupCard key={group.id} group={group} onVote={handleVote} voted={voted} totalVotes={totalVotes} />
           ))}
         </div>
         <div className="pyramid-row">
-          {bands.slice(3).map((band) => (
-            <BandCard key={band.id} band={band} onVote={handleVote} voted={voted} totalVotes={totalVotes} />
+          {groups.slice(3).map((group) => (
+            <GroupCard key={group.id} group={group} onVote={handleVote} voted={voted} totalVotes={totalVotes} />
           ))}
         </div>
       </main>
